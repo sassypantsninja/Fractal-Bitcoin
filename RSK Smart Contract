@@ -1,0 +1,31 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract FractalPayout {
+    // Event for logging each payment
+    event PaymentMade(address indexed recipient, uint256 amount);
+    
+    // Recursive function to perform fractal payouts
+    function fractalPayout(address payable[] memory recipients, uint256 amount, uint256 depth) public payable {
+        require(recipients.length > 0, "At least one recipient required");
+        require(amount > 0, "Amount must be greater than zero");
+        require(depth > 0, "Depth must be greater than zero");
+        
+        // Base case: If depth reaches 0, stop recursion
+        if (depth == 0) return;
+
+        uint256 individualPayout = amount / recipients.length;
+
+        // Loop through recipients and send payment
+        for (uint i = 0; i < recipients.length; i++) {
+            recipients[i].transfer(individualPayout);
+            emit PaymentMade(recipients[i], individualPayout);
+        }
+
+        // Recursively call the function with reduced depth and amount
+        fractalPayout(recipients, individualPayout, depth - 1);
+    }
+
+    // Fallback function to accept ETH
+    receive() external payable {}
+}
